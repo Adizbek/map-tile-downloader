@@ -64,7 +64,7 @@ module.exports = {
 
             //create writestream as z/x/y.png
             let file = xPath + '/' + tileCoords.y + '.png';
-            
+
             fs.exists(file);
 
             var ws = fs.createWriteStream(file);
@@ -98,7 +98,12 @@ module.exports = {
                     }
                 }
             });
-            request(url).pipe(ws);
+            request({
+                url: url,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
+                }
+            }).pipe(ws);
         }
 
         //given a bounding box and zoom level, calculate x and y tile ranges
