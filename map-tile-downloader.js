@@ -63,7 +63,11 @@ module.exports = {
             }
 
             //create writestream as z/x/y.png
-            var ws = fs.createWriteStream(xPath + '/' + tileCoords.y + '.png');
+            let file = xPath + '/' + tileCoords.y + '.png';
+            
+            fs.exists(file);
+
+            var ws = fs.createWriteStream(file);
             ws.on('error', function (err) {
                 console.log(err);
             });
@@ -106,6 +110,10 @@ module.exports = {
             tileBounds.xMin = long2tile(bbox[1], zoom);
             tileBounds.yMin = lat2tile(bbox[2], zoom);
             tileBounds.xMax = long2tile(bbox[3], zoom);
+
+            let x = Math.abs(tileBounds.yMax - tileBounds.yMin) * Math.abs(tileBounds.xMax - tileBounds.xMin);
+
+            console.log(`Will be downloaded ${x} tiles`);
 
             return tileBounds;
         }
