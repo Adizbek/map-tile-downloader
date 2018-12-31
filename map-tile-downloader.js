@@ -22,10 +22,18 @@ module.exports = {
 
         for (let z = options.zoom.min; z <= options.zoom.max; z++) {
             tileBounds = calcMinAndMaxValues(options.bbox, z);
-
+            let total = Math.abs(tileBounds.xMin - tileBounds.xMax) * Math.abs(tileBounds.yMin - tileBounds.yMax);
+            let curr = 1;
             for (let x = tileBounds.xMin; x < tileBounds.xMax; x++) {
                 for (let y = tileBounds.yMin; y < tileBounds.yMax; y++) {
-                    await getTile(x, y, z);
+                    try {
+                        console.log(`${curr} / ${total}`);
+                        await getTile(x, y, z);
+                        curr++;
+                    } catch (e) {
+                        console.log(e);
+                        y--;
+                    }
                 }
             }
 
