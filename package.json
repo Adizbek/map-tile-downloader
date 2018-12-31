@@ -5,11 +5,11 @@
   "main": "map-tile-scraper.js",
   "dependencies": {
     "fs": "0.0.2",
+    "image-downloader": "^3.4.2",
     "mustache": "^2.2.0",
     "request": "^2.67.0"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

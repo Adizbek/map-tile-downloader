@@ -1,10 +1,11 @@
 var fs = require('fs'),
     request = require('request'),
     Mustache = require('mustache');
+const download = require('image-downloader')
 
 module.exports = {
 
-    run: function (options, callback) {
+    run: async function (options, callback) {
         var tileCount = 0,
             tileCoords = {},
             tileBounds;
@@ -30,15 +31,26 @@ module.exports = {
         tileCoords.y = tileBounds.yMin;
 
 
+        for (let z = options.zoom.min; z <= options.zoom.max; z++) {
+            for (let x = tileBounds.xMin; x < tileBounds.xMax; x++) {
+                for (let y = tileBounds.yMin; y < tileBounds.yMax; y++) {
+                    await getTile(x, y, z);
+                }
+            }
+        }
         //start the recursive function that fetches tiles
-        getTile();
 
         /* Function Declarations */
 
         //recursive function to iterate over each z, x, and y tile name
         //
-        function getTile() {
-            tileCoords.s = Math.floor(Math.random() * 4);
+        async function getTile(x, y, z) {
+            tileCoords = {
+                s: Math.floor(Math.random() * 4),
+                x: x,
+                y: y,
+                z: z,
+            };
 
             //render the url template
             var url = Mustache.render(options.url, tileCoords);
@@ -66,53 +78,20 @@ module.exports = {
             let file = xPath + '/' + tileCoords.y + '.png';
 
 
-            let goNext = () => {
-                tileCount++;
-
-                //increment y
-                tileCoords.y++;
-                if (tileCoords.y <= tileBounds.yMax) {
-                    getTile();
-                } else { //increment x
-                    tileCoords.x++;
-                    tileCoords.y = tileBounds.yMin;
-                    if (tileCoords.x <= tileBounds.xMax) {
-                        getTile();
-                    } else { //increment z
-                        tileCoords.z++;
-                        tileBounds = calcMinAndMaxValues(options.bbox, tileCoords.z);
-                        tileCoords.x = tileBounds.xMin;
-                        tileCoords.y = tileBounds.yMin;
-
-                        if (tileCoords.z <= options.zoom.max) {
-                            getTile();
-                        } else {
-                            console.log('Download Complete! I grabbed ' + tileCount + ' tiles!');
-                            //callback();
-                        }
-                    }
-                }
-            };
-
             if (fs.existsSync(file)) {
-                console.log('No need to download ' + url)
-                goNext();
+                console.log('No need to download ' + url);
                 return;
             }
 
-            var ws = fs.createWriteStream(file);
-            ws.on('error', function (err) {
-                console.log(err);
-            });
-            ws.on('finish', function () {
-                goNext()
-            });
-            request({
+            const {filename, image} = await download.image({
                 url: url,
+                dest: file,
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
                 }
-            }).pipe(ws);
+            });
+
+            console.log(filename)
         }
 
         //given a bounding box and zoom level, calculate x and y tile ranges
