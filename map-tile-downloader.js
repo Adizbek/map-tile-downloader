@@ -65,13 +65,8 @@ module.exports = {
             //create writestream as z/x/y.png
             let file = xPath + '/' + tileCoords.y + '.png';
 
-            fs.exists(file);
 
-            var ws = fs.createWriteStream(file);
-            ws.on('error', function (err) {
-                console.log(err);
-            });
-            ws.on('finish', function () {
+            let goNext = () => {
                 tileCount++;
 
                 //increment y
@@ -97,6 +92,20 @@ module.exports = {
                         }
                     }
                 }
+            };
+
+            if (fs.existsSync(file)) {
+                console.log('No need to download ' + url)
+                goNext();
+                return;
+            }
+
+            var ws = fs.createWriteStream(file);
+            ws.on('error', function (err) {
+                console.log(err);
+            });
+            ws.on('finish', function () {
+                goNext()
             });
             request({
                 url: url,
