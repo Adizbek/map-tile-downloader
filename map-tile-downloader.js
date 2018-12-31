@@ -6,9 +6,7 @@ const download = require('image-downloader')
 module.exports = {
 
     run: async function (options, callback) {
-        var tileCount = 0,
-            tileCoords = {},
-            tileBounds;
+        var tileBounds;
 
         //turn all single curly braces in the zxy tile URL into double curly braces
         options.url = options.url.replace(/[{]/ig, '{{').replace(/[}]/ig, '}}');
@@ -22,21 +20,15 @@ module.exports = {
         }
         console.log('Fetching tiles from: ' + options.url);
 
-        //set the initial z, x, and y tile names
-        //z values are a fixed range defined in options
-        tileCoords.z = options.zoom.min;
-        //x and y ranges are based on the bounding box and the current zoom
-        tileBounds = calcMinAndMaxValues(options.bbox, tileCoords.z);
-        tileCoords.x = tileBounds.xMin;
-        tileCoords.y = tileBounds.yMin;
-
-
         for (let z = options.zoom.min; z <= options.zoom.max; z++) {
+            tileBounds = calcMinAndMaxValues(options.bbox, z);
+
             for (let x = tileBounds.xMin; x < tileBounds.xMax; x++) {
                 for (let y = tileBounds.yMin; y < tileBounds.yMax; y++) {
                     await getTile(x, y, z);
                 }
             }
+
         }
         //start the recursive function that fetches tiles
 
@@ -45,7 +37,7 @@ module.exports = {
         //recursive function to iterate over each z, x, and y tile name
         //
         async function getTile(x, y, z) {
-            tileCoords = {
+            let tileCoords = {
                 s: Math.floor(Math.random() * 4),
                 x: x,
                 y: y,
