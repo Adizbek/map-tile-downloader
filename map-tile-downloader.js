@@ -54,7 +54,7 @@ module.exports = {
 
             //render the url template
             var url = Mustache.render(options.url, tileCoords);
-            console.log('Fetching tile: ' + url);
+            //console.log('Fetching tile: ' + url);
 
             //create z directory in the root directory
             zPath = options.rootDir + '/' + tileCoords.z.toString() + '/';
@@ -79,7 +79,7 @@ module.exports = {
 
 
             if (fs.existsSync(file)) {
-                console.log('No need to download ' + url);
+                //console.log('No need to download ' + url);
                 return;
             }
 
@@ -88,7 +88,8 @@ module.exports = {
                 dest: file,
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
-                }
+                },
+		timeout: 10000
             });
 
             console.log(filename)
